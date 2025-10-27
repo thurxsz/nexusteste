@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Premium - Sistema por Arquivo</title>
+    <style>
+        /* [MANTENHA TODO O CSS ANTERIOR] */
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #06d6a0;
+            --bg-light: #f8fafc;
+            --bg-dark: #0f172a;
+            --text-light: #1e293b;
+            --text-dark: #f1f5f9;
+            --card-light: #ffffff;
+            --card-dark: #1e293b;
+            --border-light: #e2e8f0;
+            --border-dark: #334155;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] {
+            --bg: var(--bg-dark);
+            --text: var(--text-dark);
+            --card: var(--card-dark);
+            --border: var(--border-dark);
+        }
+
+        [data-theme="light"] {
+            --bg: var(--bg-light);
+            --text: var(--text-light);
+            --card: var(--card-light);
+            --border: var(--border-light);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            transition: var(--transition);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: var(--card);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .auth-section {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #05b388;
+        }
+
+        .hero {
+            padding: 4rem 0;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(6, 214, 160, 0.1) 100%);
+            border-radius: 0 0 2rem 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            opacity: 0.8;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .content-card {
+            background-color: var(--card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 1px solid var(--border);
+        }
+
+        .content-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .content-card h3 {
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .content-card p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .locked {
+            filter: blur(5px);
+            pointer-events: none;
+            position: relative;
+        }
+
+        .locked::after {
+            content: "🔒 Conteúdo Bloqueado";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--card);
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow);
+        }
+
+        .modal h2 {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .success-message {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(6, 214, 160, 0.1) 100%);
+            border: 1px solid var(--primary);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        footer {
+            background-color: var(--card);
+            padding: 2rem 0;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+        }
+
+        .admin-section {
+            margin-top: 3rem;
+            padding: 2rem;
+            background-color: var(--card);
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+        }
+
+        .admin-section h2 {
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .admin-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .file-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .user-list {
+            margin-top: 2rem;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-inactive {
+            background-color: #fecaca;
+            color: #991b1b;
+        }
+
+        .user-file-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .file-controls {
+                flex-direction: column;
+            }
+            
+            .user-item {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">NEXUS</div>
+                <div class="nav-controls">
+                    <button class="theme-toggle" id="themeToggle">🌙</button>
+                    <div class="auth-section">
+                        <button class="btn btn-outline" id="loginBtn">Entrar</button>
+                        <button class="btn btn-primary" id="signupBtn">Assinar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>Conteúdo Premium Exclusivo</h1>
+            <p>Acesso a materiais avançados para impulsionar seus negócios e conhecimentos</p>
+            <center><button class="btn btn-primary" id="heroSignupBtn">Assinar Agora</button></center>
+        </section>
+
+        <section class="content-section">
+            <h2 style="text-align: center; margin-bottom: 2rem;">Nossos Conteúdos Exclusivos</h2>
+            <div class="content-grid" id="contentGrid">
+                <!-- Conteúdo será carregado via JavaScript -->
+            </div>
+        </section>
+
+        <section class="admin-section" id="adminSection" style="display: none;">
+            <h2>Painel de Administração</h2>
+            
+            <div class="info-box">
+                <strong>💡 Como funciona:</strong><br>
+                1. Crie usuários abaixo<br>
+                2. Gere arquivo .user para cada cliente<br>
+                3. Envie o arquivo por email<br>
+                4. Cliente importa o arquivo no site para acessar
+            </div>
+            
+            <!-- Controles de Arquivo -->
+            <div class="file-controls">
+                <button class="btn btn-success" id="exportAllBtn">📥 Exportar TODOS os Dados</button>
+                <button class="btn btn-primary" id="importAllBtn">📤 Importar Dados</button>
+                <input type="file" id="fileInput" accept=".json" style="display: none;">
+            </div>
+
+            <div class="admin-controls">
+                <div class="form-group">
+                    <label for="newUsername">Nome do Usuário</label>
+                    <input type="text" id="newUsername" placeholder="Ex: joao.silva">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">Senha</label>
+                    <input type="text" id="newPassword" placeholder="Digite a senha">
+                </div>
+                <button class="btn btn-primary" id="addUserBtn">Criar Usuário</button>
+            </div>
+            
+            <div class="success-message" id="successMessage"></div>
+            
+            <div class="user-list" id="userList">
+                <!-- Lista de usuários será carregada via JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Nexus Premium. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Modal de Login -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <h2>Acessar Conteúdo</h2>
+            
+            <div class="info-box">
+                <strong>📁 Método 1 - Importar Arquivo .user</strong><br>
+                Use o arquivo que recebeu por email
+                <button class="btn btn-outline" style="width: 100%; margin-top: 0.5rem;" onclick="document.getElementById('userFileInput').click()">
+                    Importar Arquivo de Usuário
+                </button>
+                <input type="file" id="userFileInput" accept=".user" style="display: none;">
+            </div>
+
+            <div style="text-align: center; margin: 1rem 0; opacity: 0.7;">OU</div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Usuário</label>
+                    <input type="text" id="username" placeholder="Seu usuário">
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" placeholder="Sua senha">
+                </div>
+                <div class="error-message" id="loginError">Usuário ou senha incorretos</div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Entrar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Assinatura -->
+    <div class="modal" id="signupModal">
+        <div class="modal-content">
+            <h2>Assinar Nexus Premium</h2>
+            <p style="margin-bottom: 1.5rem; text-align: center;">Após o pagamento, você receberá um arquivo de acesso por email.</p>
+            <button class="btn btn-primary" style="width: 100%;" id="externalGatewayBtn">Ir para Gateway de Pagamento</button>
+        </div>
+    </div>
+
+    <script>
+        // Conteúdo padrão do site
+        const defaultSiteContent = {
+            "PRLS": { title: "PRLS", description: "Pacotes de recursos e listas privadas", content: "Conteúdo exclusivo sobre PRLS..." },
+            "CURSOS": { title: "Cursos", description: "Cursos especializados", content: "Conteúdo exclusivo sobre Cursos..." },
+            "PDFS": { title: "PDFs", description: "Documentos em PDF para download", content: "Conteúdo exclusivo sobre PDFs..." },
+            // ... (mantenha todo o conteúdo anterior)
+            "JOGOS": { title: "Jogos", description: "Recursos relacionados a jogos", content: "Conteúdo exclusivo sobre Jogos..." }
+        };
+
+        // Sistema de gerenciamento por arquivo COMPARTILHADO
+        class FileBasedManager {
+            constructor() {
+                this.currentUserKey = 'nexus_current_user';
+                this.dataKey = 'nexus_data';
+                this.init();
+            }
+
+            init() {
+                this.loadData();
+                this.checkCurrentUser();
+            }
+
+            getDefaultData() {
+                return {
+                    users: {
+                        'admin': {
+                            password: 'admin123',
+                            active: true,
+                            isAdmin: true,
+                            createdAt: new Date().toISOString()
+                        }
+                    },
+                    content: defaultSiteContent,
+                    settings: {
+                        theme: 'light',
+                        lastExport: null
+                    }
+                };
+            }
+
+            loadData() {
+                const savedData = localStorage.getItem(this.dataKey);
+                if (savedData) {
+                    this.data = JSON.parse(savedData);
+                } else {
+                    this.data = this.getDefaultData();
+                    this.saveData();
+                }
+                return this.data;
+            }
+
+            saveData() {
+                localStorage.setItem(this.dataKey, JSON.stringify(this.data));
+                this.showSuccess('Dados salvos com sucesso!');
+            }
+
+            // === NOVOS MÉTODOS PARA USUÁRIOS COMPARTILHADOS ===
+
+            generateUserFile(username) {
+                const user = this.data.users[username];
+                if (!user) {
+                    this.showError('Usuário não encontrado');
+                    return;
+                }
+
+                const userData = {
+                    username: username,
+                    password: user.password,
+                    active: user.active,
+                    generatedAt: new Date().toISOString(),
+                    type: 'nexus_user_file'
+                };
+
+                const dataStr = JSON.stringify(userData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                
+                const url = URL.createObjectURL(dataBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${username}.user`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.showSuccess(`Arquivo ${username}.user gerado com sucesso!`);
+            }
+
+            importUserFile(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const userData = JSON.parse(e.target.result);
+                        
+                        // Valida se é um arquivo de usuário válido
+                        if (userData.type === 'nexus_user_file' && userData.username && userData.password) {
+                            // Faz login automaticamente com o usuário do arquivo
+                            this.authenticate(userData.username, userData.password);
+                        } else {
+                            this.showError('Arquivo de usuário inválido');
+                        }
+                    } catch (error) {
+                        this.showError('Erro ao ler arquivo. Verifique se é um arquivo .user válido.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            exportAllData() {
+                const dataStr = JSON.stringify(this.data, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                
+                const url = URL.createObjectURL(dataBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `nexus-backup-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.showSuccess('Todos os dados exportados com sucesso!');
+            }
+
+            importAllData(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        
+                        if (importedData.users && importedData.content) {
+                            this.data = importedData;
+                            this.saveData();
+                            this.showSuccess('Dados importados com sucesso!');
+                            
+                            if (this.currentUser) {
+                                this.updateUIForUser(this.currentUser);
+                            } else {
+                                this.updateUIForGuest();
+                            }
+                        } else {
+                            this.showError('Arquivo inválido. Estrutura de dados incorreta.');
+                        }
+                    } catch (error) {
+                        this.showError('Erro ao importar arquivo. Verifique se é um JSON válido.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            showSuccess(message) {
+                const successEl = document.getElementById('successMessage');
+                successEl.textContent = message;
+                successEl.style.display = 'block';
+                successEl.style.color = '#06d6a0';
+                
+                setTimeout(() => {
+                    successEl.style.display = 'none';
+                }, 3000);
+            }
+
+            showError(message) {
+                const successEl = document.getElementById('successMessage');
+                successEl.textContent = message;
+                successEl.style.display = 'block';
+                successEl.style.color = '#ef4444';
+                
+                setTimeout(() => {
+                    successEl.style.display = 'none';
+                }, 3000);
+            }
+
+            getUsers() {
+                return this.data.users;
+            }
+
+            addUser(username, password) {
+                const users = this.getUsers();
+                
+                if (users[username]) {
+                    this.showError('Usuário já existe');
+                    return false;
+                }
+                
+                users[username] = {
+                    password: password,
+                    active: true,
+                    isAdmin: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.saveData();
+                this.showSuccess('Usuário adicionado com sucesso!');
+                return true;
+            }
+
+            authenticate(username, password) {
+                const users = this.getUsers();
+                const user = users[username];
+                
+                if (user && user.password === password && user.active) {
+                    this.currentUser = {
+                        username: username,
+                        isAdmin: user.isAdmin
+                    };
+                    localStorage.setItem(this.currentUserKey, JSON.stringify(this.currentUser));
+                    
+                    // Fecha o modal de login se estiver aberto
+                    document.getElementById('loginModal').style.display = 'none';
+                    document.getElementById('loginError').style.display = 'none';
+                    
+                    this.updateUIForUser(this.currentUser);
+                    return { success: true, isAdmin: user.isAdmin };
+                }
+                
+                document.getElementById('loginError').style.display = 'block';
+                return { success: false, message: 'Credenciais inválidas ou conta inativa' };
+            }
+
+            logout() {
+                this.currentUser = null;
+                localStorage.removeItem(this.currentUserKey);
+                this.checkCurrentUser();
+            }
+
+            checkCurrentUser() {
+                const currentUser = localStorage.getItem(this.currentUserKey);
+                if (currentUser) {
+                    this.currentUser = JSON.parse(currentUser);
+                    this.updateUIForUser(this.currentUser);
+                    return this.currentUser;
+                } else {
+                    this.updateUIForGuest();
+                    return null;
+                }
+            }
+
+            toggleUserStatus(username) {
+                const users = this.getUsers();
+                if (users[username] && !users[username].isAdmin) {
+                    users[username].active = !users[username].active;
+                    this.saveData();
+                    return true;
+                }
+                return false;
+            }
+
+            updateUIForUser(userData) {
+                document.getElementById('loginBtn').textContent = 'Sair';
+                document.getElementById('signupBtn').style.display = 'none';
+                document.getElementById('heroSignupBtn').style.display = 'none';
+                
+                if (userData.isAdmin) {
+                    document.getElementById('adminSection').style.display = 'block';
+                    this.loadUserList();
+                }
+                
+                this.loadContent(true);
+            }
+
+            updateUIForGuest() {
+                document.getElementById('loginBtn').textContent = 'Entrar';
+                document.getElementById('signupBtn').style.display = 'block';
+                document.getElementById('heroSignupBtn').style.display = 'block';
+                document.getElementById('adminSection').style.display = 'none';
+                
+                this.loadContent(false);
+            }
+
+            loadUserList() {
+                const users = this.getUsers();
+                const userList = document.getElementById('userList');
+                userList.innerHTML = '';
+                
+                Object.keys(users).forEach(username => {
+                    if (!users[username].isAdmin) {
+                        const userItem = document.createElement('div');
+                        userItem.className = 'user-item';
+                        
+                        userItem.innerHTML = `
+                            <div>
+                                <strong>${username}</strong>
+                                <div style="font-size: 0.8rem; opacity: 0.7;">
+                                    Criado em: ${new Date(users[username].createdAt).toLocaleDateString()}
+                                </div>
+                            </div>
+                            <div class="user-file-controls">
+                                <span class="status-badge ${users[username].active ? 'status-active' : 'status-inactive'}">
+                                    ${users[username].active ? 'Ativo' : 'Inativo'}
+                                </span>
+                                <button class="btn btn-success" onclick="fileManager.generateUserFile('${username}')">
+                                    📁 Gerar Arquivo
+                                </button>
+                                <button class="btn ${users[username].active ? 'btn-outline' : 'btn-primary'}" 
+                                        onclick="fileManager.toggleUserStatus('${username}') && fileManager.loadUserList()">
+                                    ${users[username].active ? 'Desativar' : 'Ativar'}
+                                </button>
+                            </div>
+                        `;
+                        
+                        userList.appendChild(userItem);
+                    }
+                });
+            }
+
+            loadContent(isAuthenticated) {
+                const contentGrid = document.getElementById('contentGrid');
+                contentGrid.innerHTML = '';
+                
+                const content = this.data.content;
+                
+                Object.keys(content).forEach(key => {
+                    const item = content[key];
+                    const card = document.createElement('div');
+                    card.className = `content-card ${isAuthenticated ? '' : 'locked'}`;
+                    
+                    card.innerHTML = `
+                        <h3>${item.title}</h3>
+                        <p>${item.description}</p>
+                        ${isAuthenticated ? `<div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">${item.content}</div>` : ''}
+                    `;
+                    
+                    contentGrid.appendChild(card);
+                });
+            }
+        }
+
+        // ==================== INICIALIZAÇÃO ====================
+        const fileManager = new FileBasedManager();
+
+        // Configuração do tema
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('nexus_theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        themeToggle.textContent = savedTheme === 'light' ? '🌙' : '☀️';
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', newTheme);
+            themeToggle.textContent = newTheme === 'light' ? '🌙' : '☀️';
+            localStorage.setItem('nexus_theme', newTheme);
+        });
+
+        // ==================== CONFIGURAÇÃO DOS CONTROLES ====================
+        const loginModal = document.getElementById('loginModal');
+        const signupModal = document.getElementById('signupModal');
+        const loginBtn = document.getElementById('loginBtn');
+        const signupBtn = document.getElementById('signupBtn');
+        const heroSignupBtn = document.getElementById('heroSignupBtn');
+        const externalGatewayBtn = document.getElementById('externalGatewayBtn');
+        const loginForm = document.getElementById('loginForm');
+        const loginError = document.getElementById('loginError');
+
+        // Controles de arquivo
+        const exportAllBtn = document.getElementById('exportAllBtn');
+        const importAllBtn = document.getElementById('importAllBtn');
+        const fileInput = document.getElementById('fileInput');
+        const userFileInput = document.getElementById('userFileInput');
+        const addUserBtn = document.getElementById('addUserBtn');
+
+        // Event Listeners
+        loginBtn.addEventListener('click', () => {
+            const currentUser = fileManager.checkCurrentUser();
+            if (currentUser) {
+                fileManager.logout();
+            } else {
+                loginModal.style.display = 'flex';
+            }
+        });
+
+        signupBtn.addEventListener('click', () => {
+            signupModal.style.display = 'flex';
+        });
+
+        heroSignupBtn.addEventListener('click', () => {
+            signupModal.style.display = 'flex';
+        });
+
+        externalGatewayBtn.addEventListener('click', () => {
+            alert('Redirecionando para o gateway de pagamento...');
+        });
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            fileManager.authenticate(username, password);
+        });
+
+        // Importar arquivo de usuário
+        userFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileManager.importUserFile(e.target.files[0]);
+                e.target.value = '';
+            }
+        });
+
+        // Controles admin
+        exportAllBtn.addEventListener('click', () => {
+            fileManager.exportAllData();
+        });
+
+        importAllBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileManager.importAllData(e.target.files[0]);
+                e.target.value = '';
+            }
+        });
+
+        addUserBtn.addEventListener('click', () => {
+            const username = document.getElementById('newUsername').value;
+            const password = document.getElementById('newPassword').value;
+            
+            if (!username || !password) {
+                fileManager.showError('Por favor, preencha todos os campos');
+                return;
+            }
+            
+            if (fileManager.addUser(username, password)) {
+                document.getElementById('newUsername').value = '';
+                document.getElementById('newPassword').value = '';
+                fileManager.loadUserList();
+            }
+        });
+
+        // Fechar modais
+        window.addEventListener('click', (e) => {
+            if (e.target === loginModal) {
+                loginModal.style.display = 'none';
+                loginError.style.display = 'none';
+            }
+            if (e.target === signupModal) {
+                signupModal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
